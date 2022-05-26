@@ -40,6 +40,7 @@ class SnakeGame:
     def __init__(self, w=640, h=480):
         self.w = w
         self.h = h
+
         # init display
         self.display = pygame.display.set_mode((self.w, self.h))
         pygame.display.set_caption('Snake')
@@ -57,18 +58,16 @@ class SnakeGame:
         self.snake = [self.head, Point(self.head.x - BLOCK_SIZE, self.head.y),
                       Point(self.head.x - (2 * BLOCK_SIZE), self.head.y)]
 
-        # Initially score is 0 and we place the food randomly on the screen.
+        # Initially score is 0, and we place the food randomly on the screen.
         self.score = 0
         self.food = None
 
         self.speed = SPEED
-
         self._place_food()
 
     def _place_food(self):
         """
         Randomly creates a coordinate in the boundaries of the display and places the food.
-        :return:
         """
         x = random.randint(0, (self.w - BLOCK_SIZE) // BLOCK_SIZE) * BLOCK_SIZE
         y = random.randint(0, (self.h - BLOCK_SIZE) // BLOCK_SIZE) * BLOCK_SIZE
@@ -78,12 +77,17 @@ class SnakeGame:
             self._place_food()
 
     def play_step(self):
-        # 1. Collect the user input
+        """
+        Controls the game via the user's input.
+        :return: score (int)
+        """
+
         # This for loop gets all the events from the user, within ONE play_step invoke.
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()  # exit from pygame instance
                 quit()  # exit our Python program
+
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT:
                     self.direction = Direction.LEFT
@@ -94,47 +98,51 @@ class SnakeGame:
                 elif event.key == pygame.K_DOWN:
                     self.direction = Direction.DOWN
 
-        # 2. move the snake
+        # Move the snake
         self._move(self.direction)  # update the head
         self.snake.insert(0, self.head)  # insert the new head at the beginning of the list of snake.
 
-        # 3. check if game over, quit if this is the case
+        # Check if the game is over, quit if this is the case
         game_over = False
         if self._is_collision():
             game_over = True
             return game_over, self.score
 
-        # 4. place new food or just move
+        # Place new food or just move
         if self.head == self.food:
             self.score += 1
             self.speed += 2
             self._place_food()
         else:
             self.snake.pop()  # removes the last element of our snake. Because we have inserted one at the beginning.
-        # 5. update the pygame ui and clock
+
+        # Update the pygame ui and clock
         self._update_ui()
         self.clock.tick(self.speed)
 
-        # 6. return if game over and score.
+        # Return if the game is over or not and user's score.
         return game_over, self.score
 
     def _is_collision(self):
+        """
+        Checks if the collision is happened or not.
+        :return: (bool)
+        """
         # If hits boundary
-        if (self.head.x > self.w - BLOCK_SIZE or self.head.x < 0) or (
-                self.head.y > self.h - BLOCK_SIZE or self.head.y < 0):
-            return True  # we have collision
+        if (self.head.x > self.w - BLOCK_SIZE or self.head.x < 0) or \
+                (self.head.y > self.h - BLOCK_SIZE or self.head.y < 0):
+            return True
 
         # If hits self
         if self.head in self.snake[1:]:
             return True
-
 
         return False
 
     def _update_ui(self):
         """
         Updates the user interface of the pygame display. Order is important!
-        :return:
+
         """
         self.display.fill(BLACK)
 
@@ -154,6 +162,11 @@ class SnakeGame:
         pygame.display.flip()  # updating the full display
 
     def _move(self, direction):
+        """
+        Controls the movement of the snake.
+        :param direction: (Direction) enum class object for the predetermined directions
+
+        """
         # Extract x and y coordinates of the head
         x, y = self.head.x, self.head.y
         if direction == Direction.RIGHT:
