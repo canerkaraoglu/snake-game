@@ -25,7 +25,7 @@ Point = namedtuple('Point', 'x, y')
 BLOCK_SIZE = 20
 
 # Speed of the game
-SPEED = 30
+SPEED = 10
 
 # Colors for the screen elements
 
@@ -60,6 +60,8 @@ class SnakeGame:
         # Initially score is 0 and we place the food randomly on the screen.
         self.score = 0
         self.food = None
+
+        self.speed = SPEED
 
         self._place_food()
 
@@ -105,14 +107,15 @@ class SnakeGame:
         # 4. place new food or just move
         if self.head == self.food:
             self.score += 1
+            self.speed += 2
             self._place_food()
         else:
             self.snake.pop()  # removes the last element of our snake. Because we have inserted one at the beginning.
         # 5. update the pygame ui and clock
         self._update_ui()
-        self.clock.tick(SPEED)
-        # 6. return if game over and score.
+        self.clock.tick(self.speed)
 
+        # 6. return if game over and score.
         return game_over, self.score
 
     def _is_collision(self):
@@ -124,6 +127,7 @@ class SnakeGame:
         # If hits self
         if self.head in self.snake[1:]:
             return True
+
 
         return False
 
@@ -172,7 +176,6 @@ if __name__ == '__main__':
         game_over, score = game.play_step()
 
         # break if game over
-
         if game_over:
             break
 
